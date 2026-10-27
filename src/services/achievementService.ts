@@ -1,6 +1,7 @@
 import { Achievement, UserAchievement } from '../types/achievement';
 import { supabase, isSupabaseConfigured } from './supabase';
 import { mockAchievements } from '../data/mockAchievements';
+import { isValidUuid } from '../utils/helpers';
 
 const STORAGE_PREFIX = 'bololocal_user_achievements_';
 
@@ -143,7 +144,7 @@ export const achievementService = {
   getUserAchievements: async (userId: string): Promise<UserAchievement[]> => {
     if (!userId) return [];
 
-    if (isSupabaseConfigured && userId !== 'guest' && !userId.startsWith('usr-test-')) {
+    if (isSupabaseConfigured && isValidUuid(userId)) {
       const { data, error } = await supabase
         .from('user_achievements')
         .select('*')
@@ -186,7 +187,7 @@ export const achievementService = {
     const definition = allAchs.find((a) => a.id === achievementId) || mockAchievements.find((a) => a.id === achievementId);
     if (!definition) return null;
 
-    if (isSupabaseConfigured && userId !== 'guest' && !userId.startsWith('usr-test-')) {
+    if (isSupabaseConfigured && isValidUuid(userId)) {
       const { error } = await supabase.from('user_achievements').upsert(
         {
           user_id: userId,
@@ -201,18 +202,18 @@ export const achievementService = {
       }
     }
 
-    // Also persist in local cache
     try {
       const current = await achievementService.getUserAchievements(userId);
-      if (!current.some((a) => a.achievement_id === achievementId)) {
-        current.push({
+      const updated = [
+        ...current,
+        {
           id: `uach-${Date.now()}`,
           user_id: userId,
           achievement_id: achievementId,
           unlocked_at: new Date().toISOString(),
-        });
-        localStorage.setItem(`${STORAGE_PREFIX}${userId}`, JSON.stringify(current));
-      }
+        },
+      ];
+      localStorage.setItem(`${STORAGE_PREFIX}${userId}`, JSON.stringify(updated));
     } catch {}
 
     return definition;

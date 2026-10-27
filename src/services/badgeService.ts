@@ -1,6 +1,7 @@
 import { Badge, UserBadge, BadgeRarity } from '../types/badge';
 import { supabase, isSupabaseConfigured } from './supabase';
 import { mockBadges } from '../data/mockBadges';
+import { isValidUuid } from '../utils/helpers';
 
 const STORAGE_PREFIX = 'bololocal_user_badges_';
 
@@ -142,7 +143,7 @@ export const badgeService = {
   getUserBadges: async (userId: string): Promise<UserBadge[]> => {
     if (!userId) return [];
 
-    if (isSupabaseConfigured && userId !== 'guest' && !userId.startsWith('usr-test-')) {
+    if (isSupabaseConfigured && isValidUuid(userId)) {
       const { data, error } = await supabase
         .from('user_badges')
         .select('*')
@@ -185,7 +186,7 @@ export const badgeService = {
     const definition = allBadges.find((b) => b.id === badgeId) || mockBadges.find((b) => b.id === badgeId);
     if (!definition) return null;
 
-    if (isSupabaseConfigured && userId !== 'guest' && !userId.startsWith('usr-test-')) {
+    if (isSupabaseConfigured && isValidUuid(userId)) {
       const { error } = await supabase.from('user_badges').upsert(
         {
           user_id: userId,

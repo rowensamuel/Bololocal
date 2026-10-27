@@ -9,6 +9,7 @@ import { timedQuizService } from './timedQuizService';
 import { Achievement } from '../types/achievement';
 import { Badge } from '../types/badge';
 import { queryCache, executeWithRetry } from '../utils/supabaseClientHelper';
+import { isValidUuid } from '../utils/helpers';
 
 const QUIZ_ATTEMPTS_STORAGE_PREFIX = 'bololocal_quiz_attempts_';
 const PROCESSED_ATTEMPTS_KEY = 'bololocal_processed_attempt_ids';
@@ -264,7 +265,7 @@ export const quizService = {
     const userId = attempt.user_id || 'guest';
     const lang = attempt.language_id || 'mr';
 
-    if (isSupabaseConfigured && userId !== 'guest' && !userId.startsWith('usr-test-')) {
+    if (isSupabaseConfigured && isValidUuid(userId)) {
       try {
         const { error } = await supabase.from('quiz_attempts').insert({
           user_id: userId,

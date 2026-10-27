@@ -4,6 +4,7 @@ import { mockLessons } from '../data/mockData';
 import { mockMultiLanguageLessons } from '../data/mockMultiLanguageLessons';
 import { progressService } from './progressService';
 import { queryCache, executeWithRetry } from '../utils/supabaseClientHelper';
+import { isValidUuid } from '../utils/helpers';
 
 const COMPLETED_LESSONS_PREFIX = 'bololocal_completed_lessons_';
 const LESSONS_STORAGE_KEY = 'bololocal_custom_lessons';
@@ -246,7 +247,7 @@ export const lessonService = {
     const targetUser = userId || 'guest';
     const targetLang = languageId || 'mr';
 
-    if (isSupabaseConfigured && userId && userId !== 'guest') {
+    if (isSupabaseConfigured && isValidUuid(userId)) {
       try {
         const { error } = await supabase.from('lesson_progress').upsert(
           {
@@ -302,7 +303,7 @@ export const lessonService = {
   },
 
   getCompletedLessonIdsAsync: async (userId: string, languageId: string): Promise<string[]> => {
-    if (!isSupabaseConfigured || !userId || userId === 'guest') {
+    if (!isSupabaseConfigured || !isValidUuid(userId)) {
       return lessonService.getCompletedLessonIds(userId, languageId);
     }
 

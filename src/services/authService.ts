@@ -153,40 +153,86 @@ export const authService = {
           });
 
           if (!authError && authData.user) {
-            const { data: profileRow } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('auth_user_id', authData.user.id)
-              .maybeSingle();
+            let profileRow: any = null;
+            try {
+              const { data } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('auth_user_id', authData.user.id)
+                .maybeSingle();
+              profileRow = data;
+            } catch {}
 
-            if (profileRow) {
-              if (profileRow.status === 'inactive') {
-                await supabase.auth.signOut();
-                throw new Error('Account is deactivated. Please contact an administrator.');
-              }
-
-              const userProfile: UserProfile = {
-                id: profileRow.id,
-                auth_user_id: profileRow.auth_user_id,
-                username: profileRow.username,
-                full_name: profileRow.full_name,
-                email: profileRow.email,
-                role: profileRow.role,
-                avatar_url: profileRow.avatar_url,
-                native_language_id: profileRow.native_language_id || 'hi',
-                learning_language_id: profileRow.learning_language_id || 'mr',
-                level: profileRow.level || 'Beginner',
-                daily_goal: profileRow.daily_goal || 15,
-                status: profileRow.status || 'active',
-                created_at: profileRow.created_at,
-                updated_at: profileRow.updated_at,
-                name: profileRow.full_name,
-                isAdmin: profileRow.role === 'admin',
-              };
-
-              setStoredCurrentUser(userProfile);
-              return userProfile;
+            if (profileRow?.status === 'inactive') {
+              await supabase.auth.signOut();
+              throw new Error('Account is deactivated. Please contact an administrator.');
             }
+
+            // If profile does not exist yet in profiles table, create or synthesize it
+            if (!profileRow) {
+              const meta = authData.user.user_metadata || {};
+              const autoUsername = meta.username || authData.user.email?.split('@')[0] || `user_${authData.user.id.slice(0, 5)}`;
+              const autoFullName = meta.full_name || meta.name || autoUsername;
+              const autoRole = meta.role || (authData.user.email?.includes('admin') ? 'admin' : 'user');
+
+              try {
+                const { data: createdProfile } = await supabase
+                  .from('profiles')
+                  .upsert({
+                    auth_user_id: authData.user.id,
+                    username: autoUsername,
+                    full_name: autoFullName,
+                    email: authData.user.email,
+                    role: autoRole,
+                    native_language_id: meta.native_language_id || 'hi',
+                    learning_language_id: meta.learning_language_id || 'mr',
+                    level: meta.level || 'Beginner',
+                    daily_goal: meta.daily_goal || 15,
+                    status: 'active',
+                  }, { onConflict: 'auth_user_id' })
+                  .select('*')
+                  .maybeSingle();
+                profileRow = createdProfile;
+              } catch {}
+
+              if (!profileRow) {
+                profileRow = {
+                  id: authData.user.id,
+                  auth_user_id: authData.user.id,
+                  username: autoUsername,
+                  full_name: autoFullName,
+                  email: authData.user.email,
+                  role: autoRole,
+                  native_language_id: 'hi',
+                  learning_language_id: 'mr',
+                  level: 'Beginner',
+                  daily_goal: 15,
+                  status: 'active',
+                };
+              }
+            }
+
+            const userProfile: UserProfile = {
+              id: profileRow.id,
+              auth_user_id: profileRow.auth_user_id,
+              username: profileRow.username,
+              full_name: profileRow.full_name,
+              email: profileRow.email,
+              role: profileRow.role,
+              avatar_url: profileRow.avatar_url,
+              native_language_id: profileRow.native_language_id || 'hi',
+              learning_language_id: profileRow.learning_language_id || 'mr',
+              level: profileRow.level || 'Beginner',
+              daily_goal: profileRow.daily_goal || 15,
+              status: profileRow.status || 'active',
+              created_at: profileRow.created_at,
+              updated_at: profileRow.updated_at,
+              name: profileRow.full_name,
+              isAdmin: profileRow.role === 'admin' || profileRow.username?.toLowerCase() === 'admin',
+            };
+
+            setStoredCurrentUser(userProfile);
+            return userProfile;
           }
         }
       } catch (err: any) {

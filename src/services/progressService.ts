@@ -1,5 +1,6 @@
 import { UserLanguageProgress, UserProgress, Badge } from '../types/progress';
 import { supabase, isSupabaseConfigured } from './supabase';
+import { isValidUuid } from '../utils/helpers';
 
 const PROGRESS_STORAGE_PREFIX = 'bololocal_progress_';
 
@@ -56,7 +57,7 @@ export const progressService = {
 
     const normLang = languageId.toLowerCase();
 
-    if (isSupabaseConfigured && userId !== 'guest' && !userId.startsWith('usr-test-')) {
+    if (isSupabaseConfigured && isValidUuid(userId)) {
       try {
         const { data, error } = await supabase
           .from('user_language_progress')
@@ -157,7 +158,7 @@ export const progressService = {
       last_active_at: new Date().toISOString(),
     };
 
-    if (isSupabaseConfigured && userId !== 'guest' && !userId.startsWith('usr-test-')) {
+    if (isSupabaseConfigured && isValidUuid(userId)) {
       try {
         const { error } = await supabase.from('user_language_progress').upsert(
           {

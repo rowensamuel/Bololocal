@@ -58,11 +58,12 @@ export const languageService = {
           greeting_meaning: row.greeting_meaning || '',
         }));
 
-        // Merge custom languages not yet in DB
+        // Merge mock and custom languages not yet in DB so all 10 languages are always available
         const dbCodes = new Set(dbLangs.map((l) => l.code.toLowerCase()));
-        const uniqueCustom = custom.filter((c) => !dbCodes.has(c.code.toLowerCase()));
+        const uniqueMock = mockLanguages.filter((m) => !dbCodes.has(m.code.toLowerCase()));
+        const uniqueCustom = custom.filter((c) => !dbCodes.has(c.code.toLowerCase()) && !uniqueMock.some(m => m.code.toLowerCase() === c.code.toLowerCase()));
 
-        return [...dbLangs, ...uniqueCustom];
+        return [...dbLangs, ...uniqueMock, ...uniqueCustom];
       } catch {
         return [...mockLanguages, ...custom];
       }

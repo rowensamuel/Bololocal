@@ -7,6 +7,7 @@ import { badgeService } from './badgeService';
 import { progressService } from './progressService';
 import { Achievement } from '../types/achievement';
 import { Badge } from '../types/badge';
+import { isValidUuid } from '../utils/helpers';
 
 const TIMED_ATTEMPTS_STORAGE_PREFIX = 'bololocal_timed_attempts_';
 const PROCESSED_ATTEMPTS_KEY = 'bololocal_processed_timed_attempt_ids';
@@ -264,7 +265,7 @@ export const timedQuizService = {
     const lang = attempt.language_id || 'mr';
 
     // Store in PostgreSQL database if Supabase is connected
-    if (isSupabaseConfigured && userId !== 'guest' && !userId.startsWith('usr-test-')) {
+    if (isSupabaseConfigured && isValidUuid(userId)) {
       try {
         const { error } = await supabase.from('timed_quiz_attempts').insert({
           user_id: userId,
