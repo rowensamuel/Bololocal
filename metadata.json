@@ -1,0 +1,6 @@
+{
+  "name": "BOLOLOCAL",
+  "description": "Don't Just Translate. Learn to Speak. An AI-powered local Indian language learning platform starting with Marathi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

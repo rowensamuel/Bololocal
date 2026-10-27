@@ -1,0 +1,123 @@
+import { Language } from '../types/language';
+
+export const mockLanguages: Language[] = [
+  {
+    id: 'mr',
+    name: 'Marathi',
+    code: 'mr',
+    native_name: 'मराठी',
+    script: 'Devanagari',
+    is_active: true,
+    flag: '🇮🇳',
+    greeting: 'नमस्कार!',
+    greeting_meaning: 'Hello / Greetings in Marathi',
+  },
+  {
+    id: 'hi',
+    name: 'Hindi',
+    code: 'hi',
+    native_name: 'हिन्दी',
+    script: 'Devanagari',
+    is_active: true,
+    flag: '🇮🇳',
+    greeting: 'नमस्ते!',
+    greeting_meaning: 'Hello / Greetings in Hindi',
+  },
+  {
+    id: 'bn',
+    name: 'Bengali',
+    code: 'bn',
+    native_name: 'বাংলা',
+    script: 'Bengali',
+    is_active: true,
+    flag: '🇮🇳',
+    greeting: 'নমস্কার!',
+    greeting_meaning: 'Hello / Greetings in Bengali',
+  },
+  {
+    id: 'ta',
+    name: 'Tamil',
+    code: 'ta',
+    native_name: 'தமிழ்',
+    script: 'Tamil',
+    is_active: true,
+    flag: '🇮🇳',
+    greeting: 'வணக்கம்!',
+    greeting_meaning: 'Hello / Greetings in Tamil',
+  },
+  {
+    id: 'te',
+    name: 'Telugu',
+    code: 'te',
+    native_name: 'తెలుగు',
+    script: 'Telugu',
+    is_active: true,
+    flag: '🇮🇳',
+    greeting: 'నమస్కారం!',
+    greeting_meaning: 'Hello / Greetings in Telugu',
+  },
+  {
+    id: 'gu',
+    name: 'Gujarati',
+    code: 'gu',
+    native_name: 'ગુજરાતી',
+    script: 'Gujarati',
+    is_active: true,
+    flag: '🇮🇳',
+    greeting: 'નમસ્તે!',
+    greeting_meaning: 'Hello / Greetings in Gujarati',
+  },
+  {
+    id: 'sa',
+    name: 'Sanskrit',
+    code: 'sa',
+    native_name: 'संस्कृतम्',
+    script: 'Devanagari',
+    is_active: true,
+    flag: '🇮🇳',
+    greeting: 'नमो नमः!',
+    greeting_meaning: 'Greetings in Sanskrit',
+  },
+  {
+    id: 'en',
+    name: 'English',
+    code: 'en',
+    native_name: 'English',
+    script: 'Latin',
+    is_active: true,
+    flag: '🇮🇳',
+    greeting: 'Hello!',
+    greeting_meaning: 'Greetings in English',
+  },
+  {
+    id: 'kn',
+    name: 'Kannada',
+    code: 'kn',
+    native_name: 'ಕನ್ನಡ',
+    script: 'Kannada',
+    is_active: true,
+    flag: '🇮🇳',
+    greeting: 'ನಮಸ್ಕಾರ!',
+    greeting_meaning: 'Hello / Greetings in Kannada',
+  },
+  {
+    id: 'ml',
+    name: 'Malayalam',
+    code: 'ml',
+    native_name: 'മലയാളം',
+    script: 'Malayalam',
+    is_active: true,
+    flag: '🇮🇳',
+    greeting: 'നമസ്കാരം!',
+    greeting_meaning: 'Hello / Greetings in Malayalam',
+  },
+];
+
+export const getLanguageById = (idOrCode: string): Language => {
+  const norm = idOrCode.toLowerCase();
+  return (
+    mockLanguages.find(
+      (l) => l.id.toLowerCase() === norm || l.code.toLowerCase() === norm || l.name.toLowerCase() === norm
+    ) || mockLanguages[0]
+  );
+};
